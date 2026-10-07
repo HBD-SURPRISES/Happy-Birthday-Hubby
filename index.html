@@ -101,6 +101,7 @@
             position: relative; width: 300px; height: 300px;
             margin: 20px auto; border-radius: 15px; overflow: hidden;
             box-shadow: 0 0 30px rgba(255,117,140,0.5); border: 4px solid #ff7eb3;
+            background: #000;
         }
         .scratch-content {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -175,7 +176,8 @@
         </div>
         
         <div style="margin-top: 30px;">
-            <button class="btn" onclick="nextSection('section-photos', 'section-scratch')">आगे बढ़ें ➡️</button>
+            <!-- यहाँ मैंने क्लिक इवेंट बदल दिया है -->
+            <button class="btn" onclick="goToScratchSection()">आगे बढ़ें ➡️</button>
         </div>
     </div>
 
@@ -185,8 +187,8 @@
         <p>ग्रे वाले हिस्से को हाथ से स्क्रैच करें (रगड़ें) और जादू देखें!</p>
         
         <div class="scratch-container">
-            <!-- Added preload="auto" to help mobile browsers -->
-            <video class="scratch-content" id="private-video" src="private_media.mp4" autoplay loop muted playsinline preload="auto"></video>
+            <!-- मैंने यहाँ से autoplay हटा दिया है ताकि ब्राउज़र इसे ब्लॉक न करे -->
+            <video class="scratch-content" id="private-video" src="private_media.mp4" loop muted playsinline preload="auto"></video>
             <canvas id="scratch-pad" width="300" height="300"></canvas>
         </div>
         
@@ -253,7 +255,18 @@
         function nextSection(currentId, nextId) {
             document.getElementById(currentId).classList.add("hidden");
             document.getElementById(nextId).classList.remove("hidden");
-            if(nextId === 'section-scratch') setupScratchCard();
+        }
+
+        // मोबाइल वीडियो फिक्स: 'आगे बढ़ें' बटन क्लिक पर ही वीडियो प्ले हो जाएगा
+        function goToScratchSection() {
+            nextSection('section-photos', 'section-scratch');
+            setupScratchCard();
+            
+            const video = document.getElementById('private-video');
+            if(video) {
+                video.muted = true; // मोबाइल के लिए muted होना ज़रूरी है
+                video.play().catch(err => console.log("Video Play Error:", err));
+            }
         }
 
         function startCountdown() {
@@ -278,7 +291,6 @@
         function setupScratchCard() {
             const canvas = document.getElementById('scratch-pad');
             const ctx = canvas.getContext('2d');
-            const video = document.getElementById('private-video'); // वीडियो को ढूँढें
             
             ctx.fillStyle = '#bdc3c7';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -296,7 +308,6 @@
             ctx.fillText('हाथ से स्क्रैच करें! 👆', canvas.width/2, canvas.height/2);
 
             let isDrawing = false;
-            let videoStarted = false; // वीडियो प्ले होने का चेक
             
             function getCoordinates(e) {
                 const rect = canvas.getBoundingClientRect();
@@ -309,18 +320,15 @@
                 if (!isDrawing) return;
                 e.preventDefault(); 
                 
-                // नया बदलाव: मोबाइल में वीडियो को टच करते ही प्ले करने का कमांड
-                if (!videoStarted && video) {
-                    video.play().catch(function(error) {
-                        console.log("Video Play Error:", error);
-                    });
-                    videoStarted = true;
+                const video = document.getElementById('private-video');
+                if (video && video.paused) {
+                    video.play().catch(e => console.log(e));
                 }
 
                 const coords = getCoordinates(e);
                 ctx.globalCompositeOperation = 'destination-out';
                 ctx.beginPath();
-                ctx.arc(coords.x, coords.y, 30, 0, Math.PI * 2); 
+                ctx.arc(coords.x, coords.y, 35, 0, Math.PI * 2); 
                 ctx.fill();
             }
 
@@ -328,7 +336,6 @@
             canvas.addEventListener('mouseup', () => isDrawing = false);
             canvas.addEventListener('mousemove', scratch);
             
-            // मोबाइल के लिए टच इवेंट्स
             canvas.addEventListener('touchstart', (e) => { 
                 isDrawing = true; 
                 scratch(e); 
