@@ -101,11 +101,11 @@
             position: relative; width: 300px; height: 300px;
             margin: 20px auto; border-radius: 15px; overflow: hidden;
             box-shadow: 0 0 30px rgba(255,117,140,0.5); border: 4px solid #ff7eb3;
-            background: #000;
+            background: #1e1e1e;
         }
         .scratch-content {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; background: #000;
+            object-fit: cover; background: #1e1e1e;
         }
         canvas { position: absolute; top: 0; left: 0; z-index: 2; cursor: pointer; }
 
@@ -176,7 +176,6 @@
         </div>
         
         <div style="margin-top: 30px;">
-            <!-- यहाँ मैंने क्लिक इवेंट बदल दिया है -->
             <button class="btn" onclick="goToScratchSection()">आगे बढ़ें ➡️</button>
         </div>
     </div>
@@ -187,8 +186,8 @@
         <p>ग्रे वाले हिस्से को हाथ से स्क्रैच करें (रगड़ें) और जादू देखें!</p>
         
         <div class="scratch-container">
-            <!-- मैंने यहाँ से autoplay हटा दिया है ताकि ब्राउज़र इसे ब्लॉक न करे -->
-            <video class="scratch-content" id="private-video" src="private_media.mp4" loop muted playsinline preload="auto"></video>
+            <!-- मैंने यहाँ से autoplay और src हटा दिया है, इसे जावास्क्रिप्ट खुद लोड करेगा -->
+            <video class="scratch-content" id="private-video" loop muted playsinline webkit-playsinline="true" preload="auto"></video>
             <canvas id="scratch-pad" width="300" height="300"></canvas>
         </div>
         
@@ -246,6 +245,21 @@
         function checkPuzzle() {
             const pwd = document.getElementById("password").value.trim().toLowerCase();
             if(pwd === "khushbu") {
+                // मास्टर ट्रिक: पहले क्लिक पर ही वीडियो लोड करके पॉज़ कर दो (मोबाइल परमिशन दे देगा)
+                const video = document.getElementById('private-video');
+                if(video) {
+                    video.src = "private_media.mp4"; // यहाँ फाइल सेट हो रही है
+                    video.muted = true;
+                    video.load();
+                    let playPromise = video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(_ => {
+                            video.pause(); // प्ले होते ही पॉज़ कर दो
+                        }).catch(error => {
+                            console.log("Auto-play prevented", error);
+                        });
+                    }
+                }
                 nextSection('section-puzzle', 'section-countdown');
             } else {
                 document.getElementById("error-msg").style.display = "block";
@@ -257,14 +271,14 @@
             document.getElementById(nextId).classList.remove("hidden");
         }
 
-        // मोबाइल वीडियो फिक्स: 'आगे बढ़ें' बटन क्लिक पर ही वीडियो प्ले हो जाएगा
         function goToScratchSection() {
             nextSection('section-photos', 'section-scratch');
             setupScratchCard();
             
+            // बटन दबाते ही वीडियो चालू कर दो
             const video = document.getElementById('private-video');
             if(video) {
-                video.muted = true; // मोबाइल के लिए muted होना ज़रूरी है
+                video.muted = true; 
                 video.play().catch(err => console.log("Video Play Error:", err));
             }
         }
