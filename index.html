@@ -96,16 +96,18 @@
             font-size: 1.8rem; font-weight: bold;
         }
 
-        /* Direct Video Section */
-        .video-box {
-            width: 100%; max-width: 400px; margin: 20px auto;
-            border: 4px solid #ff7eb3; border-radius: 15px;
-            overflow: hidden; box-shadow: 0 0 30px rgba(255,117,140,0.5);
-            background: #000;
+        /* Scratch Card Section (PHOTO) */
+        .scratch-container {
+            position: relative; width: 300px; height: 300px;
+            margin: 20px auto; border-radius: 15px; overflow: hidden;
+            box-shadow: 0 0 30px rgba(255,117,140,0.5); border: 4px solid #ff7eb3;
+            background: #1e1e1e;
         }
-        .video-box video {
-            width: 100%; height: auto; display: block;
+        .scratch-content {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; background: #1e1e1e;
         }
+        canvas { position: absolute; top: 0; left: 0; z-index: 2; cursor: pointer; }
 
         /* Letter Section */
         .letter-envelope { font-size: 5rem; cursor: pointer; animation: bounce 2s infinite; text-shadow: 0 0 20px rgba(255,255,255,0.5); }
@@ -174,21 +176,22 @@
         </div>
         
         <div style="margin-top: 30px;">
-            <button class="btn" onclick="nextSection('section-photos', 'section-video')">आगे बढ़ें ➡️</button>
+            <button class="btn" onclick="goToScratchSection()">आगे बढ़ें ➡️</button>
         </div>
     </div>
 
-    <!-- 4. DIRECT VIDEO SECTION -->
-    <div id="section-video" class="container hidden">
+    <!-- 4. SCRATCH CARD (PRIVATE PHOTO) -->
+    <div id="section-scratch" class="container hidden">
         <h2 style="color: #ff9ff3;">हमारा प्राइवेट मोमेंट 🤫</h2>
-        <p style="font-size: 1.1rem; color: #feca57;">वीडियो देखने के लिए Play (▶️) दबाएं</p>
+        <p style="font-size: 1.1rem; color: #feca57;">ग्रे वाले हिस्से को हाथ से स्क्रैच करें (रगड़ें)!</p>
         
-        <div class="video-box">
-            <!-- यहाँ मैंने आपकी गिटहब फाइल का सही नाम 'private_media.mp4' डाल दिया है -->
-            <video id="private-video" src="private_media.mp4" controls playsinline webkit-playsinline preload="metadata"></video>
+        <div class="scratch-container">
+            <!-- यहाँ हमने 5वीं फोटो लगा दी है -->
+            <img class="scratch-content" id="private-photo" src="photo5.jpg" alt="Private Photo">
+            <canvas id="scratch-pad" width="300" height="300"></canvas>
         </div>
         
-        <button class="btn" style="margin-top: 30px;" onclick="nextSection('section-video', 'section-letter')">अब मेरा खास मैसेज पढ़ें 💌</button>
+        <button class="btn" style="margin-top: 30px;" onclick="nextSection('section-scratch', 'section-letter')">अब मेरा खास मैसेज पढ़ें 💌</button>
     </div>
 
     <!-- 5. LETTER SECTION -->
@@ -198,17 +201,21 @@
         <div class="letter-envelope" onclick="openLetter()">💌</div>
         
         <div id="my-letter" class="letter-content hidden">
-            <div class="letter-line neon-1" style="font-size: 2rem;">Mere Pyare Hubby, 💖</div>
-            <div class="letter-line neon-2">Wish you a very very Happy Birthday! 🎂🥳</div>
-            <div class="letter-line neon-3">10 October mere liye sabse special din hai... ✨</div>
-            <div class="letter-line neon-5">Kyunki aaj ke din meri duniya ke sabse best insaan ka janam hua tha. 🥰</div>
-            <div class="letter-line neon-4">You are not just my husband, aap mere best friend aur meri sabse badi strength ho! 💪❤️</div>
-            <div class="letter-line neon-2">Aapka wo caring nature, mujhe har step par support karna, I just love it! 🌸</div>
-            <div class="letter-line neon-3">Jab main thodi sad ya gusse mein hoti hu, aapka mujhe pamper karna aur manana... you are simply the best! 🥺💕</div>
-            <div class="letter-line neon-5">Hamari ye beautiful memories, wo laughs, aur hamare private moments mere liye kisi jannat se kam nahi. 🕊️💖</div>
-            <div class="letter-line neon-4">I pray to God ki aapki saari wishes puri ho jaye aur aap hamesha aise hi smile karte raho. 😇✨</div>
-            <div class="letter-line neon-2">Hamesha aise hi mera hath pakad kar chalna, my super caring hubby! 👩‍❤️‍👨💞</div>
-            <div class="letter-line signature">Love you forever! ∞<br>- Aapki Khushbu 🌹</div>
+            <!-- आपका नया मैसेज -->
+            <div class="letter-line neon-1" style="font-size: 2rem;">My Dear Husband ❤️</div>
+            <div class="letter-line neon-2">Happy Birthday to the most special person in my life! 🥰</div>
+            <div class="letter-line neon-3">Tum meri life ka woh beautiful part ho jiske bina sab kuch adhura sa lagta hai. ✨</div>
+            <div class="letter-line neon-5">Tumhara saath, tumhari care aur tumhari smile mere liye bahut precious hai. 💕</div>
+            <div class="letter-line neon-4">Main bas itna chahti hoon ki tum hamesha khush raho, healthy raho aur life mein har woh success pao jiske tum deserve karte ho. 🌟</div>
+            <div class="letter-line neon-2">Main har situation mein tumhare saath khadi rahungi. 🤝❤️</div>
+            <div class="letter-line neon-3">Thank you for being not just my husband, also my support system and my favourite person. 🥰</div>
+            <div class="letter-line neon-5">I love you more than words can say. 💖</div>
+            <div class="letter-line neon-4">May this birthday bring you lots of happiness, success and beautiful memories. 🎈</div>
+            
+            <div class="letter-line signature">
+                Happy Birthday, My Man ! 🎂❤️<br>
+                <span style="font-size: 1.8rem; font-family: 'Poppins', sans-serif;">- Aapki Khushbu</span>
+            </div>
         </div>
     </div>
 
@@ -251,12 +258,11 @@
         function nextSection(currentId, nextId) {
             document.getElementById(currentId).classList.add("hidden");
             document.getElementById(nextId).classList.remove("hidden");
-            
-            // Video section se aage badhte hi video ko pause kar do
-            if(currentId === 'section-video') {
-                const video = document.getElementById('private-video');
-                if(video) video.pause();
-            }
+        }
+
+        function goToScratchSection() {
+            nextSection('section-photos', 'section-scratch');
+            setupScratchCard();
         }
 
         function startCountdown() {
@@ -276,6 +282,57 @@
                     nextSection('section-countdown', 'section-photos');
                 }
             }, 1000);
+        }
+
+        function setupScratchCard() {
+            const canvas = document.getElementById('scratch-pad');
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#bdc3c7';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#95a5a6';
+            for(let i=0; i<300; i+=20) {
+                for(let j=0; j<300; j+=20) {
+                    if((i+j)%40 === 0) ctx.fillRect(i, j, 10, 10);
+                }
+            }
+
+            ctx.font = 'bold 22px Poppins';
+            ctx.fillStyle = '#2c3e50';
+            ctx.textAlign = 'center';
+            ctx.fillText('हाथ से स्क्रैच करें! 👆', canvas.width/2, canvas.height/2);
+
+            let isDrawing = false;
+            
+            function getCoordinates(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { x: clientX - rect.left, y: clientY - rect.top };
+            }
+
+            function scratch(e) {
+                if (!isDrawing) return;
+                e.preventDefault(); 
+                
+                const coords = getCoordinates(e);
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(coords.x, coords.y, 35, 0, Math.PI * 2); 
+                ctx.fill();
+            }
+
+            canvas.addEventListener('mousedown', () => isDrawing = true);
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('mousemove', scratch);
+            
+            canvas.addEventListener('touchstart', (e) => { 
+                isDrawing = true; 
+                scratch(e); 
+            }, {passive: false});
+            canvas.addEventListener('touchend', () => isDrawing = false);
+            canvas.addEventListener('touchmove', scratch, {passive: false});
         }
 
         function openLetter() {
