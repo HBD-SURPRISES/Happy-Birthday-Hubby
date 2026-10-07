@@ -1,30 +1,42 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Happy Birthday My Love!</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@400;600&family=Noto+Sans+Devanagari:wght@400;600&display=swap');
 
         body {
             margin: 0;
             padding: 0;
             background-color: #1a1a2e;
             color: #fff;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', 'Noto Sans Devanagari', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
+            text-align: center;
+        }
+
+        /* Floating Hearts Background */
+        .hearts-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
         }
 
         .container {
-            text-align: center;
             width: 90%;
             max-width: 600px;
             padding: 20px;
+            z-index: 10;
         }
 
         .hidden { display: none !important; }
@@ -42,16 +54,13 @@
             cursor: pointer;
             margin: 10px;
             box-shadow: 0 5px 15px rgba(255, 71, 87, 0.4);
-            transition: transform 0.3s, box-shadow 0.3s;
-            font-family: 'Poppins', sans-serif;
+            transition: transform 0.3s;
             font-weight: 600;
         }
+        .btn:hover { transform: scale(1.05); }
 
-        .btn:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(255, 71, 87, 0.6); }
-        .btn-skip { background: #57606f; box-shadow: none; }
-
-        /* Puzzle Section */
-        input[type="password"] {
+        /* Puzzle */
+        input[type="text"] {
             padding: 15px;
             font-size: 1.2rem;
             border-radius: 10px;
@@ -63,22 +72,22 @@
             width: 80%;
         }
 
-        /* Countdown Section */
-        .countdown-btn {
-            font-size: 3rem;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
+        /* Countdown */
+        .countdown-text {
+            font-size: 6rem;
+            font-weight: bold;
+            color: #ff4757;
+            text-shadow: 0 0 20px rgba(255,71,87,0.8);
+            animation: popIn 0.5s ease-out;
         }
 
-        /* Photo Gallery */
+        /* Gallery */
         .gallery {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             margin-top: 20px;
         }
-
         .photo-box {
             background-color: #2f3542;
             height: 200px;
@@ -90,173 +99,272 @@
             font-size: 3rem;
             overflow: hidden;
             border: 3px dashed #57606f;
-            transition: all 0.4s;
         }
-
         .photo-box img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: none;
-            border-radius: 12px;
         }
-
         .photo-box.revealed { border: 3px solid #ff4757; background: transparent; }
         .photo-box.revealed span { display: none; }
         .photo-box.revealed img { display: block; animation: fadeIn 1s; }
 
-        /* Letter Section */
-        .letter-envelope {
-            font-size: 5rem;
-            cursor: pointer;
-            animation: bounce 2s infinite;
-            margin-top: 30px;
-        }
-
-        .letter-content {
-            background: #fff;
-            color: #333;
-            padding: 30px;
+        /* Scratch Card Section */
+        .scratch-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
             border-radius: 15px;
-            text-align: left;
-            font-size: 1.1rem;
-            line-height: 1.8;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-top: 20px;
-            border-left: 8px solid #ff4757;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        .scratch-content {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        canvas {
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 2;
+            cursor: pointer;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
+        /* Letter Section */
+        .letter-envelope { font-size: 5rem; cursor: pointer; animation: bounce 2s infinite; }
+        .letter-content {
+            background: #fff; color: #333;
+            padding: 30px; border-radius: 15px;
+            text-align: left; font-size: 1.2rem;
+            line-height: 1.8; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-left: 8px solid #ff4757;
+            font-family: 'Noto Sans Devanagari', sans-serif;
+        }
+        .letter-line {
+            opacity: 0; /* Initially hidden for typing effect */
+            transform: translateY(10px);
+            transition: all 1s ease-in-out;
+            margin-bottom: 15px;
+        }
+        .letter-line.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
+        @keyframes popIn { 0% { transform: scale(0.5); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
     </style>
 </head>
 <body>
 
+    <!-- Floating Hearts -->
+    <div class="hearts-bg" id="hearts-bg"></div>
+
     <!-- 1. PUZZLE SECTION -->
     <div id="section-puzzle" class="container">
-        <h1>Welcome!</h1>
+        <h1>Welcome Love! ❤️</h1>
         <h2>इस सरप्राइज़ को खोलने के लिए पासवर्ड बताएं:</h2>
-        <p>(Hint: आपकी दुनिया की सबसे खूबसूरत बीवी का नाम 😊)</p>
-        <input type="password" id="password" placeholder="यहाँ नाम लिखें...">
+        <!-- Hint updated with exact spelling -->
+        <p style="color:#f1c40f;">(Hint: यहाँ बिल्कुल <b>khushboo</b> टाइप करें - आपकी दुनिया की सबसे खूबसूरत बीवी का नाम 😊)</p>
+        <input type="text" id="password" placeholder="पासवर्ड यहाँ लिखें...">
         <br>
         <button class="btn" onclick="checkPuzzle()">Unlock 🔓</button>
-        <button class="btn btn-skip" onclick="nextSection('section-puzzle', 'section-countdown')">Skip Puzzle ⏭️️</button>
-        <p id="error-msg" style="color: #ff4757; display: none;">गलत पासवर्ड! फिर से कोशिश करें या Skip दबाएं।</p>
+        <p id="error-msg" style="color: #ff4757; display: none; margin-top:10px;">गलत पासवर्ड! कृपया सही स्पेलिंग khushboo लिखें।</p>
     </div>
 
     <!-- 2. COUNTDOWN SECTION -->
     <div id="section-countdown" class="container hidden">
         <h2>Are you ready?</h2>
-        <p>नीचे दिए गए बटन पर क्लिक करते जाएं...</p>
-        <button id="btn-3" class="btn countdown-btn" onclick="showNextBtn('btn-3', 'btn-2')">3</button>
-        <button id="btn-2" class="btn countdown-btn hidden" onclick="showNextBtn('btn-2', 'btn-1')">2</button>
-        <button id="btn-1" class="btn countdown-btn hidden" onclick="showNextBtn('btn-1', 'btn-go')">1</button>
-        <button id="btn-go" class="btn countdown-btn hidden" onclick="nextSection('section-countdown', 'section-photos')">GO!</button>
+        <button id="btn-go" class="btn" style="font-size: 2rem; padding: 20px 50px;" onclick="startCountdown()">GO!</button>
+        <div id="countdown-display" class="countdown-text hidden"></div>
     </div>
 
     <!-- 3. PHOTO GALLERY SECTION -->
     <div id="section-photos" class="container hidden">
         <h2>हमारी कुछ प्यारी यादें ❤️</h2>
-        <p>फोटोज़ देखने के लिए बॉक्स पर क्लिक करें</p>
+        <p>फोटोज़ देखने के लिए बॉक्सेस पर क्लिक करें</p>
         <div class="gallery">
-            <!-- फोटो 1 -->
-            <div class="photo-box" onclick="revealPhoto(this)">
-                <span>🎁</span>
-                <!-- खुशबू, नीचे अपनी पहली फोटो का लिंक डालें (image1.jpg की जगह) -->
-                <img src="https://via.placeholder.com/400x400/ff4757/ffffff?text=Photo+1" alt="Memory 1">
-            </div>
-            <!-- फोटो 2 -->
-            <div class="photo-box" onclick="revealPhoto(this)">
-                <span>🎁</span>
-                <!-- खुशबू, नीचे अपनी दूसरी फोटो का लिंक डालें -->
-                <img src="https://via.placeholder.com/400x400/ff6b81/ffffff?text=Photo+2" alt="Memory 2">
-            </div>
-            <!-- फोटो 3 -->
-            <div class="photo-box" onclick="revealPhoto(this)">
-                <span>🎁</span>
-                <!-- खुशबू, नीचे अपनी तीसरी फोटो का लिंक डालें -->
-                <img src="https://via.placeholder.com/400x400/ff4757/ffffff?text=Photo+3" alt="Memory 3">
-            </div>
-            <!-- फोटो 4 -->
-            <div class="photo-box" onclick="revealPhoto(this)">
-                <span>🎁</span>
-                <!-- खुशबू, नीचे अपनी चौथी फोटो का लिंक डालें -->
-                <img src="https://via.placeholder.com/400x400/ff6b81/ffffff?text=Photo+4" alt="Memory 4">
-            </div>
+            <div class="photo-box" onclick="revealPhoto(this)"><span>🎁</span><img src="photo1.jpg" alt="Memory 1"></div>
+            <div class="photo-box" onclick="revealPhoto(this)"><span>🎁</span><img src="photo2.jpg" alt="Memory 2"></div>
+            <div class="photo-box" onclick="revealPhoto(this)"><span>🎁</span><img src="photo3.jpg" alt="Memory 3"></div>
+            <div class="photo-box" onclick="revealPhoto(this)"><span>🎁</span><img src="photo4.jpg" alt="Memory 4"></div>
         </div>
-        <div id="birthday-msg" class="hidden">
-            <h1 style="margin-top: 30px;">Happy Birthday Hubby! 🎉</h1>
-            <p>अब आपके लिए एक खास मैसेज है...</p>
-            <button class="btn" onclick="nextSection('section-photos', 'section-letter')">मैसेज देखें 💌</button>
+        <div id="scratch-btn-container" class="hidden" style="margin-top: 30px;">
+            <button class="btn" onclick="nextSection('section-photos', 'section-scratch')">आगे बढ़ें ➡️</button>
         </div>
     </div>
 
-    <!-- 4. LETTER SECTION -->
+    <!-- 4. SCRATCH CARD (PRIVATE MEDIA) -->
+    <div id="section-scratch" class="container hidden">
+        <h2>एक छोटा सा सीक्रेट सरप्राइज़ 🤫</h2>
+        <p>ग्रे वाले हिस्से पर उंगली फेरें (स्क्रैच करें) और देखें पीछे क्या है!</p>
+        
+        <div class="scratch-container">
+            <!-- यहाँ प्राइवेट वीडियो (या फोटो) प्ले होगा। वीडियो का नाम private_media.mp4 रखें -->
+            <video class="scratch-content" src="private_media.mp4" autoplay loop muted playsinline></video>
+            <!-- अगर आपको वीडियो की जगह फोटो लगानी हो, तो ऊपर वाली लाइन हटाकर नीचे वाली इस्तेमाल करें: -->
+            <!-- <img class="scratch-content" src="private_photo.jpg" alt="Secret"> -->
+            <canvas id="scratch-pad" width="300" height="300"></canvas>
+        </div>
+        
+        <button class="btn" style="margin-top: 20px;" onclick="nextSection('section-scratch', 'section-letter')">अब मेरा खास मैसेज पढ़ें 💌</button>
+    </div>
+
+    <!-- 5. LETTER SECTION -->
     <div id="section-letter" class="container hidden">
         <h1>Happy Birthday! 🎂</h1>
         <p>इस लिफाफे पर क्लिक करें</p>
         <div class="letter-envelope" onclick="openLetter()">💌</div>
         
         <div id="my-letter" class="letter-content hidden">
-            <!-- खुशबू, यहाँ अपनी फीलिंग्स और मैसेज अपनी भाषा में लिखें -->
-            <p><strong>मेरे प्यारे हस्बैंड,</strong></p>
-            <p>आपको जन्मदिन की बहुत-बहुत शुभकामनाएँ! ❤️ 10 अक्टूबर 2026 का यह दिन मेरे लिए बहुत खास है।</p>
-            <p>मैं शब्दों में नहीं बता सकती कि आप मेरे लिए क्या मायने रखते हो। आप सिर्फ मेरे पति नहीं, बल्कि मेरे सबसे अच्छे दोस्त और मेरी सबसे बड़ी ताकत हो। हमारी ये यादें और आपके साथ बिताया हर पल मुझे बहुत खुशी देता है।</p>
-            <p>दुआ करती हूँ कि आपकी हर ख्वाहिश पूरी हो और आपके चेहरे पर हमेशा ये प्यारी सी मुस्कान रहे।</p>
-            <p>लव यू हमेशा और हमेशा!</p>
-            <p style="text-align: right; color: #ff4757; font-weight: bold;">- आपकी खुशबू</p>
+            <!-- यहाँ मैसेज एक-एक लाइन करके आएगा -->
+            <div class="letter-line" style="font-size: 1.5rem; font-weight: bold; color: #ff4757;">मेरे प्यारे हस्बैंड,</div>
+            <div class="letter-line">आपके जन्मदिन की ढेर सारी और हार्दिक शुभकामनाएँ! ❤️</div>
+            <div class="letter-line">10 अक्टूबर का यह दिन मेरे लिए बहुत खास है। क्योंकि आज के ही दिन मेरी दुनिया का सबसे प्यारा इंसान इस दुनिया में आया था।</div>
+            <div class="letter-line">मैं शब्दों में नहीं बता सकती कि आप मेरे लिए क्या मायने रखते हो। आपके बिना मेरी जिंदगी अधूरी है।</div>
+            <div class="letter-line">आप सिर्फ मेरे पति नहीं, बल्कि मेरे सबसे अच्छे दोस्त, मेरे राजदार और मेरी सबसे बड़ी ताकत हो। </div>
+            <div class="letter-line">हमारी ये यादें, हमारे छोटे-छोटे झगड़े, आपका मुझे मनाना, और आपके साथ बिताया हर एक पल मुझे बहुत खुशी और सुकून देता है।</div>
+            <div class="letter-line">भगवान से बस यही दुआ करती हूँ कि आपकी हर ख्वाहिश पूरी हो, आपको दुनिया की सारी खुशियां मिलें, और आपके चेहरे पर हमेशा ये प्यारी सी मुस्कान बनी रहे।</div>
+            <div class="letter-line">हमेशा ऐसे ही मेरा साथ निभाते रहना।</div>
+            <div class="letter-line" style="text-align: right; color: #ff4757; font-weight: bold; font-family: 'Dancing Script', cursive; font-size: 2rem;">लव यू हमेशा और हमेशा!<br>- आपकी खुशबू</div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT FOR INTERACTIVITY -->
+    <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Puzzle Logic
+        // --- 0. Floating Hearts ---
+        function createHearts() {
+            const bg = document.getElementById('hearts-bg');
+            for(let i=0; i<30; i++) {
+                let heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.style.position = 'absolute';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.top = Math.random() * 100 + 'vh';
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                heart.style.opacity = Math.random() * 0.5 + 0.2;
+                heart.style.animation = `bounce ${Math.random() * 3 + 2}s infinite alternate`;
+                bg.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        // --- 1. Puzzle ---
         function checkPuzzle() {
-            const pwd = document.getElementById("password").value.toLowerCase();
-            // पासवर्ड 'khushboo' या 'खुशबू' रखा गया है
-            if(pwd === "khushboo" || pwd === "खुशबू") {
+            const pwd = document.getElementById("password").value.trim().toLowerCase();
+            if(pwd === "khushboo") {
                 nextSection('section-puzzle', 'section-countdown');
             } else {
                 document.getElementById("error-msg").style.display = "block";
             }
         }
 
-        // Section Switcher
+        // Section Switcher Helper
         function nextSection(currentId, nextId) {
             document.getElementById(currentId).classList.add("hidden");
             document.getElementById(nextId).classList.remove("hidden");
-            document.getElementById(nextId).style.animation = "fadeIn 1s";
+            
+            // अगर स्क्रैच वाले सेक्शन में आएं, तो कैनवस सेटअप करें
+            if(nextId === 'section-scratch') setupScratchCard();
         }
 
-        // Countdown Logic
-        function showNextBtn(currentBtn, nextBtn) {
-            document.getElementById(currentBtn).classList.add("hidden");
-            document.getElementById(nextBtn).classList.remove("hidden");
+        // --- 2. Auto Countdown ---
+        function startCountdown() {
+            document.getElementById('btn-go').classList.add('hidden');
+            const display = document.getElementById('countdown-display');
+            display.classList.remove('hidden');
+            
+            let count = 3;
+            display.innerText = count;
+            
+            const timer = setInterval(() => {
+                count--;
+                if(count > 0) {
+                    display.innerText = count;
+                    display.style.animation = 'none';
+                    setTimeout(() => display.style.animation = 'popIn 0.5s ease-out', 10);
+                } else {
+                    clearInterval(timer);
+                    nextSection('section-countdown', 'section-photos');
+                }
+            }, 1000);
         }
 
-        // Photo Gallery Logic
+        // --- 3. Reveal Photos ---
         let photosRevealed = 0;
         function revealPhoto(element) {
             if(!element.classList.contains("revealed")) {
                 element.classList.add("revealed");
                 photosRevealed++;
-                
-                // जब 4 फोटोज़ क्लिक हो जाएँ, तब हैप्पी बर्थडे मैसेज दिखाएं
                 if(photosRevealed === 4) {
                     setTimeout(() => {
-                        document.getElementById("birthday-msg").classList.remove("hidden");
-                        document.getElementById("birthday-msg").style.animation = "fadeIn 1.5s";
+                        document.getElementById("scratch-btn-container").classList.remove("hidden");
                     }, 800);
                 }
             }
         }
 
-        // Letter Logic
+        // --- 4. Scratch Card Logic ---
+        function setupScratchCard() {
+            const canvas = document.getElementById('scratch-pad');
+            const ctx = canvas.getContext('2d');
+            
+            // ग्रे कलर से कैनवस को भरें
+            ctx.fillStyle = '#95a5a6';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // स्क्रैच करने के लिए मैसेज लिखें
+            ctx.font = '20px Poppins';
+            ctx.fillStyle = '#ffffff';
+            ctx.textAlign = 'center';
+            ctx.fillText('Scratch Me!', canvas.width/2, canvas.height/2);
+
+            let isDrawing = false;
+            
+            function getCoordinates(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return {
+                    x: clientX - rect.left,
+                    y: clientY - rect.top
+                };
+            }
+
+            function scratch(e) {
+                if (!isDrawing) return;
+                e.preventDefault(); // फोन पर पेज को स्क्रॉल होने से रोकेगा
+                const coords = getCoordinates(e);
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath();
+                ctx.arc(coords.x, coords.y, 25, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            canvas.addEventListener('mousedown', () => isDrawing = true);
+            canvas.addEventListener('mouseup', () => isDrawing = false);
+            canvas.addEventListener('mousemove', scratch);
+            
+            canvas.addEventListener('touchstart', (e) => { isDrawing = true; scratch(e); });
+            canvas.addEventListener('touchend', () => isDrawing = false);
+            canvas.addEventListener('touchmove', scratch);
+        }
+
+        // --- 5. Letter Animation ---
         function openLetter() {
             document.querySelector(".letter-envelope").style.display = "none";
             document.getElementById("my-letter").classList.remove("hidden");
-            document.getElementById("my-letter").style.animation = "fadeIn 1.5s";
+            
+            // एक-एक लाइन को वीडियो की तरह दिखाएं (हर लाइन 1.5 सेकंड के गैप में)
+            const lines = document.querySelectorAll('.letter-line');
+            lines.forEach((line, index) => {
+                setTimeout(() => {
+                    line.classList.add('visible');
+                }, index * 1500); // 1500ms = 1.5 seconds per line
+            });
         }
     </script>
 </body>
